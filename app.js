@@ -1,11 +1,12 @@
 /* =========================================================
-   GULAB AI V2
-   Supabase Connected Frontend Controller
+   🌹 GULAB AI V2
+   Gemini + Supabase Edge Function
+   No Login / No Signup
    ========================================================= */
 
 
 /* =========================================================
-   SUPABASE CONNECTION
+   SUPABASE
 ========================================================= */
 
 let supabaseClient = null;
@@ -21,12 +22,17 @@ try {
       window.GULAB_SUPABASE_KEY
     );
 
-    console.log("🌹 GULAB AI → Supabase client initialized");
+    console.log("🌹 GULAB AI → Supabase initialized");
   } else {
-    console.warn("GULAB AI → Supabase configuration missing");
+    console.warn(
+      "GULAB AI → Supabase configuration missing"
+    );
   }
 } catch (error) {
-  console.error("Supabase initialization failed:", error);
+  console.error(
+    "Supabase initialization failed:",
+    error
+  );
 }
 
 
@@ -52,33 +58,27 @@ const STORAGE = {
 };
 
 
-/* =========================================================
-   SAFE LOCAL STORAGE
-========================================================= */
-
 function readStorage(key, fallback) {
-
   try {
-
-    const value =
-      localStorage.getItem(key);
+    const value = localStorage.getItem(key);
 
     return value
       ? JSON.parse(value)
       : fallback;
 
-  } catch {
+  } catch (error) {
+    console.error(
+      "Storage read error:",
+      error
+    );
 
     return fallback;
-
   }
 }
 
 
 function writeStorage(key, value) {
-
   try {
-
     localStorage.setItem(
       key,
       JSON.stringify(value)
@@ -86,40 +86,40 @@ function writeStorage(key, value) {
 
     return true;
 
-  } catch {
+  } catch (error) {
+    console.error(
+      "Storage write error:",
+      error
+    );
 
     return false;
-
   }
 }
 
 
 /* =========================================================
-   APPLICATION STATE
+   APP STATE
 ========================================================= */
 
 let state = {
 
-  memory:
-    readStorage(
-      STORAGE.memory,
-      []
-    ),
+  memory: readStorage(
+    STORAGE.memory,
+    []
+  ),
 
-  history:
-    readStorage(
-      STORAGE.history,
-      []
-    ),
+  history: readStorage(
+    STORAGE.history,
+    []
+  ),
 
-  settings:
-    readStorage(
-      STORAGE.settings,
-      {
-        assistantName: "GULAB",
-        language: "hi"
-      }
-    )
+  settings: readStorage(
+    STORAGE.settings,
+    {
+      assistantName: "GULAB",
+      language: "hi"
+    }
+  )
 
 };
 
@@ -176,6 +176,9 @@ const connectionStatus =
 const memoryStatus =
   $("#memoryStatus");
 
+const voiceButton =
+  $("#voiceButton");
+
 
 /* =========================================================
    TOAST
@@ -194,7 +197,9 @@ function toast(message) {
     "show"
   );
 
-  clearTimeout(toastTimer);
+  clearTimeout(
+    toastTimer
+  );
 
   toastTimer =
     setTimeout(() => {
@@ -203,7 +208,7 @@ function toast(message) {
         "show"
       );
 
-    }, 2200);
+    }, 2500);
 }
 
 
@@ -258,7 +263,7 @@ navItems.forEach((button) => {
 
 
 /* =========================================================
-   LOCAL STATE SAVE
+   SAVE STATE
 ========================================================= */
 
 function saveState() {
@@ -281,7 +286,7 @@ function saveState() {
 
 
 /* =========================================================
-   MEMORY UI
+   MEMORY
 ========================================================= */
 
 function updateMemoryUI() {
@@ -406,7 +411,10 @@ function renderMemory() {
    ADD MEMORY
 ========================================================= */
 
-function addMemory(title, text) {
+function addMemory(
+  title,
+  text
+) {
 
   if (!text || !text.trim()) {
     return;
@@ -488,12 +496,30 @@ function detectMemoryCommand(text) {
 
   let content =
     q
-      .replace(/remember that/gi, "")
-      .replace(/remember/gi, "")
-      .replace(/yaad rakho/gi, "")
-      .replace(/yaad rakhna/gi, "")
-      .replace(/याद रखो/g, "")
-      .replace(/याद रखना/g, "")
+      .replace(
+        /remember that/gi,
+        ""
+      )
+      .replace(
+        /remember/gi,
+        ""
+      )
+      .replace(
+        /yaad rakho/gi,
+        ""
+      )
+      .replace(
+        /yaad rakhna/gi,
+        ""
+      )
+      .replace(
+        /याद रखो/g,
+        ""
+      )
+      .replace(
+        /याद रखना/g,
+        ""
+      )
       .trim();
 
 
@@ -509,10 +535,22 @@ function detectMemoryCommand(text) {
 
     const name =
       content
-        .replace(/^mera naam/i, "")
-        .replace(/^मेरा नाम/, "")
-        .replace(/^hai/i, "")
-        .replace(/^है/, "")
+        .replace(
+          /^mera naam/i,
+          ""
+        )
+        .replace(
+          /^मेरा नाम/,
+          ""
+        )
+        .replace(
+          /^hai/i,
+          ""
+        )
+        .replace(
+          /^है/,
+          ""
+        )
         .trim();
 
 
@@ -520,7 +558,8 @@ function detectMemoryCommand(text) {
 
       return {
 
-        title: "Name",
+        title:
+          "Name",
 
         text:
           `User's name is ${name}`
@@ -541,7 +580,6 @@ function detectMemoryCommand(text) {
       content
 
   };
-
 }
 
 
@@ -590,7 +628,6 @@ function answerMemoryQuestion(text) {
     return (
       "अभी मुझे आपका नाम याद नहीं है।"
     );
-
   }
 
 
@@ -602,12 +639,17 @@ function answerMemoryQuestion(text) {
    CHAT UI
 ========================================================= */
 
-function addMessage(role, text) {
+function addMessage(
+  role,
+  text
+) {
 
   if (!messages) return;
 
   const div =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
   div.className =
     `msg ${role}`;
@@ -628,7 +670,9 @@ function addMessage(role, text) {
   `;
 
 
-  messages.appendChild(div);
+  messages.appendChild(
+    div
+  );
 
   messages.scrollTop =
     messages.scrollHeight;
@@ -707,7 +751,7 @@ function renderHistory() {
         <b>No activity yet</b>
 
         <p>
-          Your future GULAB conversations
+          Your GULAB conversations
           will appear here.
         </p>
 
@@ -755,138 +799,179 @@ function renderHistory() {
 
 
 /* =========================================================
-   LOCAL ASSISTANT
-========================================================= */
-
-function localAssistant(text) {
-
-  const q =
-    text.toLowerCase();
-
-
-  const memoryAnswer =
-    answerMemoryQuestion(text);
-
-  if (memoryAnswer) {
-    return memoryAnswer;
-  }
-
-
-  const memoryCommand =
-    detectMemoryCommand(text);
-
-
-  if (memoryCommand) {
-
-    addMemory(
-      memoryCommand.title,
-      memoryCommand.text
-    );
-
-    return (
-      "ठीक है। मैंने इसे GULAB की memory में save कर लिया है।"
-    );
-
-  }
-
-
-  if (
-    q.includes("hello") ||
-    q.includes("hi") ||
-    q.includes("नमस्ते") ||
-    q.includes("हेलो")
-  ) {
-
-    return `
-नमस्ते! 🌹 मैं GULAB हूँ।
-
-मैं तुम्हारे साथ chat, voice,
-memory और future intelligent
-tasks के लिए तैयार हूँ।
-`;
-
-  }
-
-
-  if (
-    q.includes("what can you do") ||
-    q.includes("क्या कर सकते")
-  ) {
-
-    return `
-मैं GULAB AI हूँ।
-
-मैं chat, voice interface,
-memory, personal settings
-और future intelligent tasks
-के लिए तैयार किया गया हूँ।
-
-Secure cloud AI backend
-अगले चरण में connect होगा।
-`;
-
-  }
-
-
-  if (
-    q.includes("time") ||
-    q.includes("समय")
-  ) {
-
-    return `
-अभी समय है:
-
-${new Date().toLocaleTimeString()}
-`;
-
-  }
-
-
-  return `
-मैंने तुम्हारी बात समझी।
-
-GULAB V2 का secure AI backend
-अभी development में है।
-
-फिलहाल मैं local assistant
-mode में काम कर रहा हूँ।
-`;
-
-}
-
-
-/* =========================================================
-   AI RESPONSE
+   REAL GEMINI AI
 ========================================================= */
 
 async function askGulab(text) {
 
   setAIState(
     "THINKING",
-    "Processing your request..."
+    "GULAB is thinking..."
   );
 
 
-  /*
-    Gemini backend will be connected
-    through Supabase Edge Function
-    in the next stage.
-  */
+  try {
 
-  await wait(350);
+    if (
+      !window.GULAB_SUPABASE_URL ||
+      !window.GULAB_SUPABASE_KEY
+    ) {
 
+      throw new Error(
+        "Supabase configuration missing."
+      );
 
-  const response =
-    localAssistant(text);
-
-
-  setAIState(
-    "READY",
-    "Response ready"
-  );
+    }
 
 
-  return response;
+    /*
+      Supabase Edge Function URL
+
+      Gemini API key is NOT here.
+      Gemini key stays inside Supabase Secret.
+    */
+
+    const functionUrl =
+      `${window.GULAB_SUPABASE_URL}/functions/v1/gulab-ai`;
+
+
+    /*
+      Send recent conversation
+      to Gemini for context.
+    */
+
+    const history =
+      state.history
+        .slice(-12)
+        .flatMap(item => [
+
+          {
+            role: "user",
+            text: item.user
+          },
+
+          {
+            role: "assistant",
+            text: item.assistant
+          }
+
+        ]);
+
+
+    const response =
+      await fetch(
+        functionUrl,
+        {
+
+          method:
+            "POST",
+
+          headers: {
+
+            "Content-Type":
+              "application/json",
+
+            "apikey":
+              window.GULAB_SUPABASE_KEY,
+
+            "Authorization":
+              `Bearer ${window.GULAB_SUPABASE_KEY}`
+
+          },
+
+          body:
+            JSON.stringify({
+
+              message:
+                text,
+
+              history:
+                history
+
+            })
+
+        }
+      );
+
+
+    let data;
+
+    try {
+
+      data =
+        await response.json();
+
+    } catch {
+
+      throw new Error(
+        "Invalid response from server."
+      );
+
+    }
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        data?.error ||
+        data?.details ||
+        `Server error: ${response.status}`
+      );
+
+    }
+
+
+    if (!data?.success) {
+
+      throw new Error(
+        data?.error ||
+        "GULAB AI response failed."
+      );
+
+    }
+
+
+    if (!data?.reply) {
+
+      throw new Error(
+        "Gemini returned an empty response."
+      );
+
+    }
+
+
+    setAIState(
+      "READY",
+      "Response ready"
+    );
+
+
+    return data.reply;
+
+
+  } catch (error) {
+
+    console.error(
+      "GULAB AI backend error:",
+      error
+    );
+
+
+    setAIState(
+      "READY",
+      "Connection error"
+    );
+
+
+    return `
+GULAB AI backend से response नहीं मिला।
+
+${error.message}
+
+कृपया थोड़ी देर बाद फिर कोशिश करें।
+`;
+
+  }
 }
 
 
@@ -904,10 +989,12 @@ if (chatForm) {
 
 
       const text =
-        chatInput.value.trim();
+        chatInput?.value.trim();
 
 
-      if (!text) return;
+      if (!text) {
+        return;
+      }
 
 
       chatInput.value =
@@ -919,6 +1006,49 @@ if (chatForm) {
         text
       );
 
+
+      /*
+        Local memory command
+        still works instantly.
+      */
+
+      const memoryCommand =
+        detectMemoryCommand(text);
+
+
+      if (memoryCommand) {
+
+        addMemory(
+          memoryCommand.title,
+          memoryCommand.text
+        );
+
+
+        const response =
+          "ठीक है। मैंने इसे GULAB की memory में save कर लिया है।";
+
+
+        addMessage(
+          "ai",
+          response
+        );
+
+
+        saveHistory(
+          text,
+          response
+        );
+
+
+        speak(response);
+
+        return;
+      }
+
+
+      /*
+        Ask real Gemini.
+      */
 
       const response =
         await askGulab(text);
@@ -934,6 +1064,9 @@ if (chatForm) {
         text,
         response
       );
+
+
+      speak(response);
 
     }
   );
@@ -956,7 +1089,14 @@ $$("[data-command]")
           button.dataset.command;
 
 
-        openPage("chat");
+        if (!command) {
+          return;
+        }
+
+
+        openPage(
+          "chat"
+        );
 
 
         addMessage(
@@ -966,7 +1106,9 @@ $$("[data-command]")
 
 
         const response =
-          await askGulab(command);
+          await askGulab(
+            command
+          );
 
 
         addMessage(
@@ -980,6 +1122,9 @@ $$("[data-command]")
           response
         );
 
+
+        speak(response);
+
       }
     );
 
@@ -990,7 +1135,8 @@ $$("[data-command]")
    VOICE RECOGNITION
 ========================================================= */
 
-let recognition = null;
+let recognition =
+  null;
 
 let isListening =
   false;
@@ -1053,7 +1199,9 @@ if (SpeechRecognition) {
       }
 
 
-      openPage("chat");
+      openPage(
+        "chat"
+      );
 
 
       addMessage(
@@ -1063,7 +1211,9 @@ if (SpeechRecognition) {
 
 
       const response =
-        await askGulab(text);
+        await askGulab(
+          text
+        );
 
 
       addMessage(
@@ -1084,11 +1234,22 @@ if (SpeechRecognition) {
 
 
   recognition.onerror =
-    () => {
+    (event) => {
+
+      console.error(
+        "Voice error:",
+        event.error
+      );
+
 
       setAIState(
         "READY",
         "Voice input unavailable"
+      );
+
+
+      toast(
+        "Voice input unavailable."
       );
 
     };
@@ -1109,7 +1270,7 @@ if (SpeechRecognition) {
 
 } else {
 
-  console.log(
+  console.warn(
     "Speech Recognition is not supported."
   );
 
@@ -1120,16 +1281,12 @@ if (SpeechRecognition) {
    VOICE BUTTON
 ========================================================= */
 
-const voiceButton =
-  $("#voiceButton");
-
-
 function startVoice() {
 
   if (!recognition) {
 
     toast(
-      "Voice recognition is not supported by this browser."
+      "Voice recognition is not supported."
     );
 
     return;
@@ -1141,7 +1298,6 @@ function startVoice() {
     recognition.stop();
 
     return;
-
   }
 
 
@@ -1149,7 +1305,11 @@ function startVoice() {
 
     recognition.start();
 
-  } catch {
+  } catch (error) {
+
+    console.error(
+      error
+    );
 
     toast(
       "Voice is already active."
@@ -1204,6 +1364,11 @@ function speak(text) {
   }
 
 
+  if (!text) {
+    return;
+  }
+
+
   window.speechSynthesis.cancel();
 
 
@@ -1214,6 +1379,11 @@ function speak(text) {
         ""
       )
       .trim();
+
+
+  if (!cleanText) {
+    return;
+  }
 
 
   const utterance =
@@ -1393,7 +1563,7 @@ $("#saveSettings")
 
 
       toast(
-        "GULAB system settings saved."
+        "GULAB settings saved."
       );
 
     }
@@ -1491,7 +1661,7 @@ $("#clearHistory")
 
 
 /* =========================================================
-   SUPABASE CONNECTION TEST
+   SUPABASE CONNECTION
 ========================================================= */
 
 async function checkSupabaseConnection() {
@@ -1506,7 +1676,6 @@ async function checkSupabaseConnection() {
     }
 
     return false;
-
   }
 
 
@@ -1555,9 +1724,43 @@ async function checkSupabaseConnection() {
 
 
     return false;
+  }
+}
 
+
+/* =========================================================
+   BACKEND STATUS
+========================================================= */
+
+async function checkBackend() {
+
+  if (!window.GULAB_SUPABASE_URL) {
+    return false;
   }
 
+
+  try {
+
+    /*
+      We don't send a real AI request here.
+      The actual backend is tested when
+      the user sends a message.
+    */
+
+    if (aiEngine) {
+
+      aiEngine.textContent =
+        "GEMINI";
+
+    }
+
+    return true;
+
+  } catch {
+
+    return false;
+
+  }
 }
 
 
@@ -1593,23 +1796,6 @@ function escapeHTML(value) {
       "'",
       "&#039;"
     );
-
-}
-
-
-/* =========================================================
-   WAIT
-========================================================= */
-
-function wait(ms) {
-
-  return new Promise(
-    resolve =>
-      setTimeout(
-        resolve,
-        ms
-      )
-  );
 
 }
 
@@ -1652,6 +1838,8 @@ async function initialize() {
 
 
   await checkSupabaseConnection();
+
+  await checkBackend();
 
 
   console.log(
