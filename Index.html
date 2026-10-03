@@ -1,0 +1,920 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <meta
+    name="theme-color"
+    content="#05030a"
+  >
+
+  <meta
+    name="description"
+    content="GULAB AI — Personal Intelligence System"
+  >
+
+  <meta
+    name="mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  >
+
+  <title>GULAB AI — Personal Intelligence</title>
+
+  <link
+    rel="manifest"
+    href="manifest.json"
+  >
+
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+</head>
+
+<body>
+
+  <!-- =================================
+       GULAB BACKGROUND
+  ================================== -->
+
+  <div class="background" aria-hidden="true">
+
+    <div class="background-glow glow-one"></div>
+    <div class="background-glow glow-two"></div>
+
+    <div class="stars"></div>
+
+    <div class="hud-grid"></div>
+
+    <div class="orbital orbital-one"></div>
+    <div class="orbital orbital-two"></div>
+    <div class="orbital orbital-three"></div>
+
+  </div>
+
+
+  <!-- =================================
+       TOP HEADER
+  ================================== -->
+
+  <header class="topbar">
+
+    <div class="brand">
+
+      <div class="brand-symbol">
+        G
+      </div>
+
+      <div class="brand-text">
+
+        <div class="brand-name">
+          GULAB
+        </div>
+
+        <div class="brand-subtitle">
+          PERSONAL INTELLIGENCE
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="system-status">
+
+      <span class="status-dot"></span>
+
+      <span>
+        ONLINE
+      </span>
+
+    </div>
+
+  </header>
+
+
+  <!-- =================================
+       MAIN APPLICATION
+  ================================== -->
+
+  <main>
+
+
+    <!-- =================================
+         HOME / AI CORE
+    ================================== -->
+
+    <section
+      id="home"
+      class="screen active"
+    >
+
+      <div class="welcome">
+
+        <div class="micro-label">
+          PERSONAL AI SYSTEM
+        </div>
+
+        <h1>
+          Hello, I'm <span>GULAB.</span>
+        </h1>
+
+        <p>
+          Your intelligent personal assistant,
+          designed to understand, remember and
+          assist you.
+        </p>
+
+      </div>
+
+
+      <!-- =================================
+           AI CORE
+      ================================== -->
+
+      <div class="ai-stage">
+
+        <div class="core-shadow"></div>
+
+        <div
+          id="aiCore"
+          class="ai-core"
+          role="button"
+          tabindex="0"
+          aria-label="Activate GULAB voice assistant"
+        >
+
+          <div class="energy-ring ring-a"></div>
+          <div class="energy-ring ring-b"></div>
+          <div class="energy-ring ring-c"></div>
+
+          <div class="core-orbit orbit-a"></div>
+          <div class="core-orbit orbit-b"></div>
+
+          <div class="core-particles">
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+            <i></i>
+          </div>
+
+          <div class="core-glass">
+
+            <div class="core-letter">
+              G
+            </div>
+
+            <div class="core-light"></div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- CORE STATUS -->
+
+      <div
+        id="aiState"
+        class="ai-state"
+      >
+        READY
+      </div>
+
+
+      <div
+        id="aiTranscript"
+        class="ai-transcript"
+      >
+        Tap the core to speak
+      </div>
+
+
+      <!-- =================================
+           SYSTEM HUD
+      ================================== -->
+
+      <div class="hud-panel">
+
+        <div class="hud-item">
+
+          <span>
+            INTELLIGENCE
+          </span>
+
+          <strong id="aiEngine">
+            GEMINI
+          </strong>
+
+        </div>
+
+
+        <div class="hud-item">
+
+          <span>
+            CONNECTION
+          </span>
+
+          <strong id="connectionStatus">
+            SECURE
+          </strong>
+
+        </div>
+
+
+        <div class="hud-item">
+
+          <span>
+            MEMORY
+          </span>
+
+          <strong id="memoryStatus">
+            READY
+          </strong>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================
+           QUICK ACTIONS
+      ================================== -->
+
+      <div class="section-heading">
+
+        <div>
+          QUICK COMMANDS
+        </div>
+
+        <span>
+          GULAB OS
+        </span>
+
+      </div>
+
+
+      <div class="quick-actions">
+
+        <button
+          type="button"
+          class="quick-action"
+          data-command="Hello Gulab"
+        >
+
+          <span class="action-icon">
+            ✦
+          </span>
+
+          <span>
+            <b>Hello GULAB</b>
+            <small>Start conversation</small>
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="quick-action"
+          data-command="What can you do?"
+        >
+
+          <span class="action-icon">
+            ◈
+          </span>
+
+          <span>
+            <b>Capabilities</b>
+            <small>Explore GULAB</small>
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="quick-action"
+          data-command="What time is it?"
+        >
+
+          <span class="action-icon">
+            ◷
+          </span>
+
+          <span>
+            <b>Current Time</b>
+            <small>Check the time</small>
+          </span>
+
+        </button>
+
+
+        <button
+          type="button"
+          class="quick-action"
+          data-command="मेरा नाम क्या है?"
+        >
+
+          <span class="action-icon">
+            🧠
+          </span>
+
+          <span>
+            <b>My Memory</b>
+            <small>Ask GULAB</small>
+          </span>
+
+        </button>
+
+      </div>
+
+
+      <!-- =================================
+           FEATURE CARDS
+      ================================== -->
+
+      <div class="section-heading">
+
+        <div>
+          INTELLIGENCE MODULES
+        </div>
+
+        <span>
+          V2.0
+        </span>
+
+      </div>
+
+
+      <div class="feature-grid">
+
+        <article class="feature-card">
+
+          <div class="feature-icon">
+            🧠
+          </div>
+
+          <h3>
+            Smart Memory
+          </h3>
+
+          <p>
+            Remember important information
+            and personal preferences.
+          </p>
+
+          <div class="feature-status">
+            MODULE READY
+          </div>
+
+        </article>
+
+
+        <article class="feature-card">
+
+          <div class="feature-icon">
+            🎙️
+          </div>
+
+          <h3>
+            Voice Intelligence
+          </h3>
+
+          <p>
+            Talk naturally with GULAB using
+            voice interaction.
+          </p>
+
+          <div class="feature-status">
+            VOICE READY
+          </div>
+
+        </article>
+
+
+        <article class="feature-card">
+
+          <div class="feature-icon">
+            ⚡
+          </div>
+
+          <h3>
+            AI Reasoning
+          </h3>
+
+          <p>
+            Get intelligent answers,
+            explanations and assistance.
+          </p>
+
+          <div class="feature-status">
+            AI READY
+          </div>
+
+        </article>
+
+
+        <article class="feature-card">
+
+          <div class="feature-icon">
+            🔐
+          </div>
+
+          <h3>
+            Secure Core
+          </h3>
+
+          <p>
+            Sensitive credentials stay away
+            from the public frontend.
+          </p>
+
+          <div class="feature-status">
+            PROTECTED
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================
+         CHAT
+    ================================== -->
+
+    <section
+      id="chat"
+      class="screen"
+    >
+
+      <div class="screen-header">
+
+        <div>
+
+          <div class="micro-label">
+            AI COMMUNICATION
+          </div>
+
+          <h2>
+            Conversation
+          </h2>
+
+        </div>
+
+        <button
+          id="clearChat"
+          type="button"
+          class="small-button"
+        >
+          CLEAR
+        </button>
+
+      </div>
+
+
+      <div
+        id="messages"
+        class="messages"
+      >
+
+      </div>
+
+
+      <form
+        id="chatForm"
+        class="chat-composer"
+      >
+
+        <input
+          id="chatInput"
+          type="text"
+          autocomplete="off"
+          placeholder="Ask GULAB anything..."
+          aria-label="Message GULAB"
+        >
+
+        <button
+          type="submit"
+          aria-label="Send message"
+        >
+          ➤
+        </button>
+
+      </form>
+
+    </section>
+
+
+    <!-- =================================
+         MEMORY
+    ================================== -->
+
+    <section
+      id="memory"
+      class="screen"
+    >
+
+      <div class="screen-header">
+
+        <div>
+
+          <div class="micro-label">
+            PERSONAL KNOWLEDGE
+          </div>
+
+          <h2>
+            Memory Core
+          </h2>
+
+        </div>
+
+        <button
+          id="addMemory"
+          type="button"
+          class="small-button"
+        >
+          + ADD
+        </button>
+
+      </div>
+
+
+      <div class="memory-summary">
+
+        <div>
+
+          <span>
+            SAVED MEMORIES
+          </span>
+
+          <strong id="memoryCount">
+            0
+          </strong>
+
+        </div>
+
+        <div>
+          <span>
+            DATABASE
+          </span>
+
+          <strong>
+            READY
+          </strong>
+        </div>
+
+      </div>
+
+
+      <div id="memoryList"></div>
+
+
+      <div class="info-card">
+
+        <div class="info-icon">
+          🧠
+        </div>
+
+        <div>
+
+          <b>
+            Teach GULAB
+          </b>
+
+          <p>
+            You can say:
+            “मेरा नाम Raju है, इसे याद रखो।”
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================
+         HISTORY
+    ================================== -->
+
+    <section
+      id="history"
+      class="screen"
+    >
+
+      <div class="screen-header">
+
+        <div>
+
+          <div class="micro-label">
+            ACTIVITY CENTER
+          </div>
+
+          <h2>
+            Mission History
+          </h2>
+
+        </div>
+
+        <button
+          id="clearHistory"
+          type="button"
+          class="small-button"
+        >
+          CLEAR
+        </button>
+
+      </div>
+
+
+      <div id="historyList"></div>
+
+    </section>
+
+
+    <!-- =================================
+         SETTINGS
+    ================================== -->
+
+    <section
+      id="settings"
+      class="screen"
+    >
+
+      <div class="screen-header">
+
+        <div>
+
+          <div class="micro-label">
+            SYSTEM CONTROL
+          </div>
+
+          <h2>
+            Settings
+          </h2>
+
+        </div>
+
+      </div>
+
+
+      <div class="settings-card">
+
+        <label>
+
+          <span>
+            ASSISTANT NAME
+          </span>
+
+          <input
+            id="assistantName"
+            type="text"
+            value="GULAB"
+            autocomplete="off"
+          >
+
+        </label>
+
+
+        <label>
+
+          <span>
+            LANGUAGE
+          </span>
+
+          <select id="language">
+
+            <option value="hi">
+              Hindi / Hinglish
+            </option>
+
+            <option value="en">
+              English
+            </option>
+
+          </select>
+
+        </label>
+
+
+        <label>
+
+          <span>
+            AI SECURITY
+          </span>
+
+          <input
+            id="apiKey"
+            type="password"
+            disabled
+            placeholder="Secure server connection"
+            autocomplete="off"
+          >
+
+        </label>
+
+
+        <button
+          id="saveSettings"
+          type="button"
+          class="save-button"
+        >
+          SAVE SYSTEM SETTINGS
+        </button>
+
+      </div>
+
+
+      <div class="security-card">
+
+        <div class="security-icon">
+          🔐
+        </div>
+
+        <div>
+
+          <b>
+            Secure Intelligence
+          </b>
+
+          <p>
+            GULAB is designed so that
+            sensitive AI credentials remain
+            outside the public interface.
+          </p>
+
+        </div>
+
+        <span class="secure-badge">
+          SECURE
+        </span>
+
+      </div>
+
+
+      <div class="version-card">
+
+        <div class="version-symbol">
+          G
+        </div>
+
+        <div>
+
+          <b>
+            GULAB AI
+          </b>
+
+          <span>
+            Personal Intelligence System
+          </span>
+
+        </div>
+
+        <strong>
+          V2.0
+        </strong>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =================================
+       BOTTOM NAVIGATION
+  ================================== -->
+
+  <nav class="bottom-nav">
+
+    <button
+      type="button"
+      class="nav-item active"
+      data-page="home"
+    >
+
+      <span class="nav-icon">
+        ⌂
+      </span>
+
+      <small>
+        HOME
+      </small>
+
+    </button>
+
+
+    <button
+      type="button"
+      class="nav-item"
+      data-page="chat"
+    >
+
+      <span class="nav-icon">
+        ◉
+      </span>
+
+      <small>
+        CHAT
+      </small>
+
+    </button>
+
+
+    <button
+      type="button"
+      id="voiceButton"
+      class="voice-button"
+      aria-label="Activate GULAB voice assistant"
+    >
+
+      <span class="voice-glow"></span>
+
+      <span class="voice-icon">
+        🎙️
+      </span>
+
+      <small>
+        VOICE
+      </small>
+
+    </button>
+
+
+    <button
+      type="button"
+      class="nav-item"
+      data-page="memory"
+    >
+
+      <span class="nav-icon">
+        ◇
+      </span>
+
+      <small>
+        MEMORY
+      </small>
+
+    </button>
+
+
+    <button
+      type="button"
+      class="nav-item"
+      data-page="settings"
+    >
+
+      <span class="nav-icon">
+        ⚙
+      </span>
+
+      <small>
+        SETTINGS
+      </small>
+
+    </button>
+
+  </nav>
+
+
+  <!-- =================================
+       TOAST
+  ================================== -->
+
+  <div
+    id="toast"
+    class="toast"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+
+  <!-- =================================
+       APP SCRIPT
+  ================================== -->
+
+  <script src="app.js"></script>
+
+</body>
+  </html>
