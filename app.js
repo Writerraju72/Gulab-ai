@@ -1,14 +1,48 @@
 /* =========================================================
    GULAB AI V2
-   Frontend Intelligence Controller
+   Supabase Connected Frontend Controller
    ========================================================= */
-
-const $ = (selector) => document.querySelector(selector);
-const $$ = (selector) => document.querySelectorAll(selector);
 
 
 /* =========================================================
-   CONFIG
+   SUPABASE CONNECTION
+========================================================= */
+
+let supabaseClient = null;
+
+try {
+  if (
+    window.supabase &&
+    window.GULAB_SUPABASE_URL &&
+    window.GULAB_SUPABASE_KEY
+  ) {
+    supabaseClient = window.supabase.createClient(
+      window.GULAB_SUPABASE_URL,
+      window.GULAB_SUPABASE_KEY
+    );
+
+    console.log("🌹 GULAB AI → Supabase client initialized");
+  } else {
+    console.warn("GULAB AI → Supabase configuration missing");
+  }
+} catch (error) {
+  console.error("Supabase initialization failed:", error);
+}
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const $ = (selector) =>
+  document.querySelector(selector);
+
+const $$ = (selector) =>
+  document.querySelectorAll(selector);
+
+
+/* =========================================================
+   STORAGE
 ========================================================= */
 
 const STORAGE = {
@@ -19,39 +53,74 @@ const STORAGE = {
 
 
 /* =========================================================
-   SAFE STORAGE
+   SAFE LOCAL STORAGE
 ========================================================= */
 
 function readStorage(key, fallback) {
+
   try {
-    const value = localStorage.getItem(key);
-    return value ? JSON.parse(value) : fallback;
+
+    const value =
+      localStorage.getItem(key);
+
+    return value
+      ? JSON.parse(value)
+      : fallback;
+
   } catch {
+
     return fallback;
+
   }
 }
+
 
 function writeStorage(key, value) {
+
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+
+    localStorage.setItem(
+      key,
+      JSON.stringify(value)
+    );
+
     return true;
+
   } catch {
+
     return false;
+
   }
 }
 
 
-let state = {
-  memory: readStorage(STORAGE.memory, []),
-  history: readStorage(STORAGE.history, []),
+/* =========================================================
+   APPLICATION STATE
+========================================================= */
 
-  settings: readStorage(
-    STORAGE.settings,
-    {
-      assistantName: "GULAB",
-      language: "hi"
-    }
-  )
+let state = {
+
+  memory:
+    readStorage(
+      STORAGE.memory,
+      []
+    ),
+
+  history:
+    readStorage(
+      STORAGE.history,
+      []
+    ),
+
+  settings:
+    readStorage(
+      STORAGE.settings,
+      {
+        assistantName: "GULAB",
+        language: "hi"
+      }
+    )
+
 };
 
 
@@ -59,28 +128,53 @@ let state = {
    ELEMENTS
 ========================================================= */
 
-const screens = $$(".screen");
-const navItems = $$(".nav-item");
+const screens =
+  $$(".screen");
 
-const aiCore = $("#aiCore");
-const aiState = $("#aiState");
-const aiTranscript = $("#aiTranscript");
+const navItems =
+  $$(".nav-item");
 
-const messages = $("#messages");
-const chatForm = $("#chatForm");
-const chatInput = $("#chatInput");
+const aiCore =
+  $("#aiCore");
 
-const memoryList = $("#memoryList");
-const memoryCount = $("#memoryCount");
+const aiState =
+  $("#aiState");
 
-const toastElement = $("#toast");
+const aiTranscript =
+  $("#aiTranscript");
 
-const assistantNameInput = $("#assistantName");
-const languageInput = $("#language");
+const messages =
+  $("#messages");
 
-const aiEngine = $("#aiEngine");
-const connectionStatus = $("#connectionStatus");
-const memoryStatus = $("#memoryStatus");
+const chatForm =
+  $("#chatForm");
+
+const chatInput =
+  $("#chatInput");
+
+const memoryList =
+  $("#memoryList");
+
+const memoryCount =
+  $("#memoryCount");
+
+const toastElement =
+  $("#toast");
+
+const assistantNameInput =
+  $("#assistantName");
+
+const languageInput =
+  $("#language");
+
+const aiEngine =
+  $("#aiEngine");
+
+const connectionStatus =
+  $("#connectionStatus");
+
+const memoryStatus =
+  $("#memoryStatus");
 
 
 /* =========================================================
@@ -93,14 +187,23 @@ function toast(message) {
 
   if (!toastElement) return;
 
-  toastElement.textContent = message;
-  toastElement.classList.add("show");
+  toastElement.textContent =
+    message;
+
+  toastElement.classList.add(
+    "show"
+  );
 
   clearTimeout(toastTimer);
 
-  toastTimer = setTimeout(() => {
-    toastElement.classList.remove("show");
-  }, 2200);
+  toastTimer =
+    setTimeout(() => {
+
+      toastElement.classList.remove(
+        "show"
+      );
+
+    }, 2200);
 }
 
 
@@ -111,17 +214,21 @@ function toast(message) {
 function openPage(pageName) {
 
   screens.forEach((screen) => {
+
     screen.classList.toggle(
       "active",
       screen.id === pageName
     );
+
   });
 
   navItems.forEach((button) => {
+
     button.classList.toggle(
       "active",
       button.dataset.page === pageName
     );
+
   });
 
   window.scrollTo({
@@ -133,21 +240,25 @@ function openPage(pageName) {
 
 navItems.forEach((button) => {
 
-  button.addEventListener("click", () => {
+  button.addEventListener(
+    "click",
+    () => {
 
-    const page = button.dataset.page;
+      const page =
+        button.dataset.page;
 
-    if (page) {
-      openPage(page);
+      if (page) {
+        openPage(page);
+      }
+
     }
-
-  });
+  );
 
 });
 
 
 /* =========================================================
-   MEMORY
+   LOCAL STATE SAVE
 ========================================================= */
 
 function saveState() {
@@ -169,18 +280,26 @@ function saveState() {
 }
 
 
+/* =========================================================
+   MEMORY UI
+========================================================= */
+
 function updateMemoryUI() {
 
   if (memoryCount) {
+
     memoryCount.textContent =
       state.memory.length;
+
   }
 
   if (memoryStatus) {
+
     memoryStatus.textContent =
       state.memory.length > 0
         ? `${state.memory.length} SAVED`
         : "READY";
+
   }
 
   renderMemory();
@@ -196,6 +315,7 @@ function renderMemory() {
     memoryList.innerHTML = `
       <div class="memory-card">
         <b>No memories yet</b>
+
         <p>
           Teach GULAB something important
           and it will be saved on this device.
@@ -214,13 +334,19 @@ function renderMemory() {
       .map((item) => {
 
         const title =
-          escapeHTML(item.title || "Memory");
+          escapeHTML(
+            item.title || "Memory"
+          );
 
         const text =
-          escapeHTML(item.text || "");
+          escapeHTML(
+            item.text || ""
+          );
 
         const id =
-          escapeHTML(String(item.id));
+          escapeHTML(
+            String(item.id)
+          );
 
         return `
           <div class="memory-card">
@@ -255,20 +381,30 @@ function renderMemory() {
 
           state.memory =
             state.memory.filter(
-              item => String(item.id) !== String(id)
+              item =>
+                String(item.id) !==
+                String(id)
             );
 
           saveState();
+
           updateMemoryUI();
 
-          toast("Memory deleted.");
+          toast(
+            "Memory deleted."
+          );
 
         }
       );
 
     });
+
 }
 
+
+/* =========================================================
+   ADD MEMORY
+========================================================= */
 
 function addMemory(title, text) {
 
@@ -277,7 +413,8 @@ function addMemory(title, text) {
   }
 
   const cleanTitle =
-    title?.trim() || "Personal Memory";
+    title?.trim() ||
+    "Personal Memory";
 
   const cleanText =
     text.trim();
@@ -289,44 +426,42 @@ function addMemory(title, text) {
         cleanTitle.toLowerCase()
     );
 
+
   if (existing) {
 
-    existing.text = cleanText;
+    existing.text =
+      cleanText;
+
     existing.updatedAt =
       new Date().toISOString();
 
   } else {
 
     state.memory.push({
+
       id: Date.now(),
-      title: cleanTitle,
-      text: cleanText,
+
+      title:
+        cleanTitle,
+
+      text:
+        cleanText,
+
       createdAt:
         new Date().toISOString()
+
     });
 
   }
 
   saveState();
+
   updateMemoryUI();
 }
 
 
-function findMemory(query) {
-
-  const q =
-    query.toLowerCase();
-
-  return state.memory.find(
-    item =>
-      q.includes(item.title.toLowerCase()) ||
-      item.text.toLowerCase().includes(q)
-  );
-}
-
-
 /* =========================================================
-   MEMORY COMMAND DETECTOR
+   MEMORY COMMAND
 ========================================================= */
 
 function detectMemoryCommand(text) {
@@ -351,32 +486,15 @@ function detectMemoryCommand(text) {
   }
 
 
-  let content = q
-    .replace(
-      /remember that/gi,
-      ""
-    )
-    .replace(
-      /remember/gi,
-      ""
-    )
-    .replace(
-      /yaad rakho/gi,
-      ""
-    )
-    .replace(
-      /yaad rakhna/gi,
-      ""
-    )
-    .replace(
-      /याद रखो/g,
-      ""
-    )
-    .replace(
-      /याद रखना/g,
-      ""
-    )
-    .trim();
+  let content =
+    q
+      .replace(/remember that/gi, "")
+      .replace(/remember/gi, "")
+      .replace(/yaad rakho/gi, "")
+      .replace(/yaad rakhna/gi, "")
+      .replace(/याद रखो/g, "")
+      .replace(/याद रखना/g, "")
+      .trim();
 
 
   if (!content) {
@@ -397,11 +515,16 @@ function detectMemoryCommand(text) {
         .replace(/^है/, "")
         .trim();
 
+
     if (name) {
 
       return {
+
         title: "Name",
-        text: `User's name is ${name}`
+
+        text:
+          `User's name is ${name}`
+
       };
 
     }
@@ -410,14 +533,20 @@ function detectMemoryCommand(text) {
 
 
   return {
-    title: "Personal Memory",
-    text: content
+
+    title:
+      "Personal Memory",
+
+    text:
+      content
+
   };
+
 }
 
 
 /* =========================================================
-   MEMORY QUESTIONS
+   MEMORY QUESTION
 ========================================================= */
 
 function answerMemoryQuestion(text) {
@@ -437,8 +566,10 @@ function answerMemoryQuestion(text) {
     const nameMemory =
       state.memory.find(
         item =>
-          item.title.toLowerCase() === "name"
+          item.title.toLowerCase() ===
+          "name"
       );
+
 
     if (nameMemory) {
 
@@ -450,10 +581,16 @@ function answerMemoryQuestion(text) {
           )
           .trim();
 
-      return `आपका नाम ${name} है। मुझे याद है।`;
+      return (
+        `आपका नाम ${name} है। मुझे याद है।`
+      );
+
     }
 
-    return "अभी मुझे आपका नाम याद नहीं है।";
+    return (
+      "अभी मुझे आपका नाम याद नहीं है।"
+    );
+
   }
 
 
@@ -475,15 +612,21 @@ function addMessage(role, text) {
   div.className =
     `msg ${role}`;
 
+
   const label =
     role === "user"
       ? "YOU"
       : "GULAB";
 
+
   div.innerHTML = `
     <small>${label}</small>
-    <div>${escapeHTML(text)}</div>
+
+    <div>
+      ${escapeHTML(text)}
+    </div>
   `;
+
 
   messages.appendChild(div);
 
@@ -495,8 +638,12 @@ function addMessage(role, text) {
 function clearMessages() {
 
   if (messages) {
-    messages.innerHTML = "";
+
+    messages.innerHTML =
+      "";
+
   }
+
 }
 
 
@@ -504,22 +651,40 @@ function clearMessages() {
    HISTORY
 ========================================================= */
 
-function saveHistory(userText, aiText) {
+function saveHistory(
+  userText,
+  aiText
+) {
 
   state.history.push({
-    id: Date.now(),
-    user: userText,
-    assistant: aiText,
+
+    id:
+      Date.now(),
+
+    user:
+      userText,
+
+    assistant:
+      aiText,
+
     time:
       new Date().toISOString()
+
   });
 
-  if (state.history.length > 100) {
+
+  if (
+    state.history.length > 100
+  ) {
+
     state.history =
       state.history.slice(-100);
+
   }
 
+
   saveState();
+
   renderHistory();
 }
 
@@ -531,15 +696,21 @@ function renderHistory() {
 
   if (!container) return;
 
-  if (state.history.length === 0) {
+
+  if (
+    state.history.length === 0
+  ) {
 
     container.innerHTML = `
       <div class="history-card">
+
         <b>No activity yet</b>
+
         <p>
           Your future GULAB conversations
           will appear here.
         </p>
+
       </div>
     `;
 
@@ -558,15 +729,21 @@ function renderHistory() {
           <div class="history-card">
 
             <b>
-              ${escapeHTML(item.user)}
+              ${escapeHTML(
+                item.user
+              )}
             </b>
 
             <p>
-              ${escapeHTML(item.assistant)}
+              ${escapeHTML(
+                item.assistant
+              )}
             </p>
 
             <small>
-              ${new Date(item.time).toLocaleString()}
+              ${new Date(
+                item.time
+              ).toLocaleString()}
             </small>
 
           </div>
@@ -578,7 +755,7 @@ function renderHistory() {
 
 
 /* =========================================================
-   LOCAL AI FALLBACK
+   LOCAL ASSISTANT
 ========================================================= */
 
 function localAssistant(text) {
@@ -598,6 +775,7 @@ function localAssistant(text) {
   const memoryCommand =
     detectMemoryCommand(text);
 
+
   if (memoryCommand) {
 
     addMemory(
@@ -605,7 +783,10 @@ function localAssistant(text) {
       memoryCommand.text
     );
 
-    return `ठीक है। मैंने इसे GULAB की memory में save कर लिया है।`;
+    return (
+      "ठीक है। मैंने इसे GULAB की memory में save कर लिया है।"
+    );
+
   }
 
 
@@ -623,6 +804,7 @@ function localAssistant(text) {
 memory और future intelligent
 tasks के लिए तैयार हूँ।
 `;
+
   }
 
 
@@ -632,15 +814,17 @@ tasks के लिए तैयार हूँ।
   ) {
 
     return `
-मैं अभी frontend intelligence mode में हूँ।
+मैं GULAB AI हूँ।
 
-Chat, voice interface, local memory,
-navigation और personal settings
-मेरे current modules हैं।
+मैं chat, voice interface,
+memory, personal settings
+और future intelligent tasks
+के लिए तैयार किया गया हूँ।
 
-अगले चरण में मेरा secure cloud
-backend और database जोड़ा जाएगा।
+Secure cloud AI backend
+अगले चरण में connect होगा।
 `;
+
   }
 
 
@@ -651,8 +835,10 @@ backend और database जोड़ा जाएगा।
 
     return `
 अभी समय है:
+
 ${new Date().toLocaleTimeString()}
 `;
+
   }
 
 
@@ -660,14 +846,17 @@ ${new Date().toLocaleTimeString()}
 मैंने तुम्हारी बात समझी।
 
 GULAB V2 का secure AI backend
-अभी connect होना बाकी है। फिलहाल
-मैं local assistant mode में काम कर रहा हूँ।
+अभी development में है।
+
+फिलहाल मैं local assistant
+mode में काम कर रहा हूँ।
 `;
+
 }
 
 
 /* =========================================================
-   ASSISTANT RESPONSE
+   AI RESPONSE
 ========================================================= */
 
 async function askGulab(text) {
@@ -679,8 +868,9 @@ async function askGulab(text) {
 
 
   /*
-    Backend will be connected here
-    in the next development stage.
+    Gemini backend will be connected
+    through Supabase Edge Function
+    in the next stage.
   */
 
   await wait(350);
@@ -712,12 +902,17 @@ if (chatForm) {
 
       event.preventDefault();
 
+
       const text =
         chatInput.value.trim();
 
+
       if (!text) return;
 
-      chatInput.value = "";
+
+      chatInput.value =
+        "";
+
 
       addMessage(
         "user",
@@ -742,6 +937,7 @@ if (chatForm) {
 
     }
   );
+
 }
 
 
@@ -759,20 +955,25 @@ $$("[data-command]")
         const command =
           button.dataset.command;
 
+
         openPage("chat");
+
 
         addMessage(
           "user",
           command
         );
 
+
         const response =
           await askGulab(command);
+
 
         addMessage(
           "ai",
           response
         );
+
 
         saveHistory(
           command,
@@ -790,7 +991,9 @@ $$("[data-command]")
 ========================================================= */
 
 let recognition = null;
-let isListening = false;
+
+let isListening =
+  false;
 
 
 const SpeechRecognition =
@@ -803,41 +1006,55 @@ if (SpeechRecognition) {
   recognition =
     new SpeechRecognition();
 
-  recognition.continuous = false;
 
-  recognition.interimResults = false;
+  recognition.continuous =
+    false;
 
-  recognition.lang = "hi-IN";
+  recognition.interimResults =
+    false;
+
+  recognition.lang =
+    "hi-IN";
 
 
-  recognition.onstart = () => {
+  recognition.onstart =
+    () => {
 
-    isListening = true;
+      isListening =
+        true;
 
-    aiCore?.classList.add(
-      "listening"
-    );
 
-    setAIState(
-      "LISTENING",
-      "I'm listening..."
-    );
+      aiCore?.classList.add(
+        "listening"
+      );
 
-  };
+
+      setAIState(
+        "LISTENING",
+        "I'm listening..."
+      );
+
+    };
 
 
   recognition.onresult =
     async (event) => {
 
       const text =
-        event.results[0][0].transcript;
+        event.results[0][0]
+          .transcript;
+
 
       if (aiTranscript) {
+
         aiTranscript.textContent =
           text;
+
       }
 
+
       openPage("chat");
+
 
       addMessage(
         "user",
@@ -862,6 +1079,7 @@ if (SpeechRecognition) {
 
 
       speak(response);
+
     };
 
 
@@ -879,7 +1097,9 @@ if (SpeechRecognition) {
   recognition.onend =
     () => {
 
-      isListening = false;
+      isListening =
+        false;
+
 
       aiCore?.classList.remove(
         "listening"
@@ -921,6 +1141,7 @@ function startVoice() {
     recognition.stop();
 
     return;
+
   }
 
 
@@ -935,6 +1156,7 @@ function startVoice() {
     );
 
   }
+
 }
 
 
@@ -987,7 +1209,10 @@ function speak(text) {
 
   const cleanText =
     text
-      .replace(/[🌹🤖🧠🎙️⚡🔐]/g, "")
+      .replace(
+        /[🌹🤖🧠🎙️⚡🔐]/g,
+        ""
+      )
       .trim();
 
 
@@ -1003,42 +1228,52 @@ function speak(text) {
       : "hi-IN";
 
 
-  utterance.rate = 0.95;
-  utterance.pitch = 1.02;
-  utterance.volume = 1;
+  utterance.rate =
+    0.95;
+
+  utterance.pitch =
+    1.02;
+
+  utterance.volume =
+    1;
 
 
-  utterance.onstart = () => {
+  utterance.onstart =
+    () => {
 
-    aiCore?.classList.add(
-      "speaking"
-    );
-
-    setAIState(
-      "SPEAKING",
-      "GULAB is speaking..."
-    );
-
-  };
+      aiCore?.classList.add(
+        "speaking"
+      );
 
 
-  utterance.onend = () => {
+      setAIState(
+        "SPEAKING",
+        "GULAB is speaking..."
+      );
 
-    aiCore?.classList.remove(
-      "speaking"
-    );
+    };
 
-    setAIState(
-      "READY",
-      "Ready for your command"
-    );
 
-  };
+  utterance.onend =
+    () => {
+
+      aiCore?.classList.remove(
+        "speaking"
+      );
+
+
+      setAIState(
+        "READY",
+        "Ready for your command"
+      );
+
+    };
 
 
   window.speechSynthesis.speak(
     utterance
   );
+
 }
 
 
@@ -1046,17 +1281,26 @@ function speak(text) {
    AI STATE
 ========================================================= */
 
-function setAIState(stateName, transcript) {
+function setAIState(
+  stateName,
+  transcript
+) {
 
   if (aiState) {
+
     aiState.textContent =
       stateName;
+
   }
 
+
   if (aiTranscript) {
+
     aiTranscript.textContent =
       transcript;
+
   }
+
 
   aiCore?.classList.remove(
     "listening",
@@ -1064,32 +1308,43 @@ function setAIState(stateName, transcript) {
     "speaking"
   );
 
+
   const normalized =
     stateName.toLowerCase();
+
 
   if (
     normalized === "listening"
   ) {
+
     aiCore?.classList.add(
       "listening"
     );
+
   }
+
 
   if (
     normalized === "thinking"
   ) {
+
     aiCore?.classList.add(
       "thinking"
     );
+
   }
+
 
   if (
     normalized === "speaking"
   ) {
+
     aiCore?.classList.add(
       "speaking"
     );
+
   }
+
 }
 
 
@@ -1100,118 +1355,210 @@ function setAIState(stateName, transcript) {
 function loadSettings() {
 
   if (assistantNameInput) {
+
     assistantNameInput.value =
       state.settings.assistantName ||
       "GULAB";
+
   }
 
+
   if (languageInput) {
+
     languageInput.value =
       state.settings.language ||
       "hi";
+
   }
+
 }
 
 
-$("#saveSettings")?.addEventListener(
-  "click",
-  () => {
+$("#saveSettings")
+  ?.addEventListener(
+    "click",
+    () => {
 
-    state.settings.assistantName =
-      assistantNameInput?.value.trim() ||
-      "GULAB";
+      state.settings.assistantName =
+        assistantNameInput?.value.trim() ||
+        "GULAB";
 
-    state.settings.language =
-      languageInput?.value ||
-      "hi";
 
-    saveState();
+      state.settings.language =
+        languageInput?.value ||
+        "hi";
 
-    toast(
-      "GULAB system settings saved."
-    );
 
-  }
-);
+      saveState();
+
+
+      toast(
+        "GULAB system settings saved."
+      );
+
+    }
+  );
 
 
 /* =========================================================
-   ADD MEMORY
+   ADD MEMORY BUTTON
 ========================================================= */
 
-$("#addMemory")?.addEventListener(
-  "click",
-  () => {
+$("#addMemory")
+  ?.addEventListener(
+    "click",
+    () => {
 
-    const text =
-      window.prompt(
-        "What should GULAB remember?"
+      const text =
+        window.prompt(
+          "What should GULAB remember?"
+        );
+
+
+      if (!text?.trim()) {
+        return;
+      }
+
+
+      addMemory(
+        "Personal Memory",
+        text
       );
 
-    if (!text?.trim()) {
-      return;
+
+      toast(
+        "Memory saved."
+      );
+
     }
-
-    addMemory(
-      "Personal Memory",
-      text
-    );
-
-    toast(
-      "Memory saved."
-    );
-
-  }
-);
+  );
 
 
 /* =========================================================
    CLEAR CHAT
 ========================================================= */
 
-$("#clearChat")?.addEventListener(
-  "click",
-  () => {
+$("#clearChat")
+  ?.addEventListener(
+    "click",
+    () => {
 
-    clearMessages();
+      clearMessages();
 
-    toast(
-      "Conversation cleared."
-    );
+      toast(
+        "Conversation cleared."
+      );
 
-  }
-);
+    }
+  );
 
 
 /* =========================================================
    CLEAR HISTORY
 ========================================================= */
 
-$("#clearHistory")?.addEventListener(
-  "click",
-  () => {
+$("#clearHistory")
+  ?.addEventListener(
+    "click",
+    () => {
 
-    const confirmed =
-      window.confirm(
-        "Clear all conversation history?"
+      const confirmed =
+        window.confirm(
+          "Clear all conversation history?"
+        );
+
+
+      if (!confirmed) {
+        return;
+      }
+
+
+      state.history =
+        [];
+
+
+      saveState();
+
+      renderHistory();
+
+
+      toast(
+        "History cleared."
       );
 
-    if (!confirmed) {
-      return;
+    }
+  );
+
+
+/* =========================================================
+   SUPABASE CONNECTION TEST
+========================================================= */
+
+async function checkSupabaseConnection() {
+
+  if (!supabaseClient) {
+
+    if (connectionStatus) {
+
+      connectionStatus.textContent =
+        "LOCAL";
+
     }
 
-    state.history = [];
-
-    saveState();
-
-    renderHistory();
-
-    toast(
-      "History cleared."
-    );
+    return false;
 
   }
-);
+
+
+  try {
+
+    const {
+      error
+    } =
+      await supabaseClient.auth.getSession();
+
+
+    if (error) {
+      throw error;
+    }
+
+
+    if (connectionStatus) {
+
+      connectionStatus.textContent =
+        "SUPABASE";
+
+    }
+
+
+    console.log(
+      "🌹 GULAB AI → Supabase connection OK"
+    );
+
+
+    return true;
+
+  } catch (error) {
+
+    console.error(
+      "Supabase connection test failed:",
+      error
+    );
+
+
+    if (connectionStatus) {
+
+      connectionStatus.textContent =
+        "OFFLINE";
+
+    }
+
+
+    return false;
+
+  }
+
+}
 
 
 /* =========================================================
@@ -1221,24 +1568,49 @@ $("#clearHistory")?.addEventListener(
 function escapeHTML(value) {
 
   return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+
 }
 
 
 /* =========================================================
-   UTILITIES
+   WAIT
 ========================================================= */
 
 function wait(ms) {
 
   return new Promise(
     resolve =>
-      setTimeout(resolve, ms)
+      setTimeout(
+        resolve,
+        ms
+      )
   );
+
 }
 
 
@@ -1246,7 +1618,7 @@ function wait(ms) {
    INITIALIZATION
 ========================================================= */
 
-function initialize() {
+async function initialize() {
 
   loadSettings();
 
@@ -1254,20 +1626,33 @@ function initialize() {
 
   renderHistory();
 
+
   if (aiEngine) {
+
     aiEngine.textContent =
       "GEMINI";
+
   }
 
+
   if (connectionStatus) {
+
     connectionStatus.textContent =
-      "LOCAL";
+      supabaseClient
+        ? "CONNECTING..."
+        : "LOCAL";
+
   }
+
 
   setAIState(
     "READY",
     "Tap the core to speak"
   );
+
+
+  await checkSupabaseConnection();
+
 
   console.log(
     "🌹 GULAB AI V2 initialized."
