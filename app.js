@@ -1,6 +1,6 @@
 /* =========================================================
    🌹 GULAB AI V2
-   Gemini + Supabase Edge Function
+   Gemini + Supabase Edge Function + ElevenLabs TTS
    No Login / No Signup
    ========================================================= */
 
@@ -24,15 +24,10 @@ try {
 
     console.log("🌹 GULAB AI → Supabase initialized");
   } else {
-    console.warn(
-      "GULAB AI → Supabase configuration missing"
-    );
+    console.warn("GULAB AI → Supabase configuration missing");
   }
 } catch (error) {
-  console.error(
-    "Supabase initialization failed:",
-    error
-  );
+  console.error("Supabase initialization failed:", error);
 }
 
 
@@ -67,11 +62,7 @@ function readStorage(key, fallback) {
       : fallback;
 
   } catch (error) {
-    console.error(
-      "Storage read error:",
-      error
-    );
-
+    console.error("Storage read error:", error);
     return fallback;
   }
 }
@@ -87,11 +78,7 @@ function writeStorage(key, value) {
     return true;
 
   } catch (error) {
-    console.error(
-      "Storage write error:",
-      error
-    );
-
+    console.error("Storage write error:", error);
     return false;
   }
 }
@@ -122,6 +109,13 @@ let state = {
   )
 
 };
+
+
+/* =========================================================
+   AUDIO STATE
+========================================================= */
+
+let currentAudio = null;
 
 
 /* =========================================================
@@ -496,30 +490,12 @@ function detectMemoryCommand(text) {
 
   let content =
     q
-      .replace(
-        /remember that/gi,
-        ""
-      )
-      .replace(
-        /remember/gi,
-        ""
-      )
-      .replace(
-        /yaad rakho/gi,
-        ""
-      )
-      .replace(
-        /yaad rakhna/gi,
-        ""
-      )
-      .replace(
-        /याद रखो/g,
-        ""
-      )
-      .replace(
-        /याद रखना/g,
-        ""
-      )
+      .replace(/remember that/gi, "")
+      .replace(/remember/gi, "")
+      .replace(/yaad rakho/gi, "")
+      .replace(/yaad rakhna/gi, "")
+      .replace(/याद रखो/g, "")
+      .replace(/याद रखना/g, "")
       .trim();
 
 
@@ -535,22 +511,10 @@ function detectMemoryCommand(text) {
 
     const name =
       content
-        .replace(
-          /^mera naam/i,
-          ""
-        )
-        .replace(
-          /^मेरा नाम/,
-          ""
-        )
-        .replace(
-          /^hai/i,
-          ""
-        )
-        .replace(
-          /^है/,
-          ""
-        )
+        .replace(/^mera naam/i, "")
+        .replace(/^मेरा नाम/, "")
+        .replace(/^hai/i, "")
+        .replace(/^है/, "")
         .trim();
 
 
@@ -558,8 +522,7 @@ function detectMemoryCommand(text) {
 
       return {
 
-        title:
-          "Name",
+        title: "Name",
 
         text:
           `User's name is ${name}`
@@ -799,7 +762,234 @@ function renderHistory() {
 
 
 /* =========================================================
-   REAL GEMINI AI
+   🔊 ELEVENLABS AUDIO PLAYER
+========================================================= */
+
+function stopCurrentAudio() {
+
+  if (currentAudio) {
+
+    try {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+    } catch {}
+
+    currentAudio = null;
+  }
+
+  aiCore?.classList.remove(
+    "speaking"
+  );
+
+}
+
+
+function playElevenLabsAudio(
+  audioBase64,
+  mimeType = "audio/mpeg"
+) {
+
+  if (!audioBase64) {
+
+    console.warn(
+      "No ElevenLabs audio received."
+    );
+
+    return false;
+  }
+
+
+  try {
+
+    stopCurrentAudio();
+
+
+    const binaryString =
+      atob(audioBase64);
+
+
+    const len =
+      binaryString.length;
+
+
+    const bytes =
+      new Uint8Array(len);
+
+
+    for (
+      let i = 0;
+      i < len;
+      i++
+    ) {
+
+      bytes[i] =
+        binaryString.charCodeAt(i);
+
+    }
+
+
+    const blob =
+      new Blob(
+        [bytes],
+        {
+          type: mimeType
+        }
+      );
+
+
+    const audioUrl =
+      URL.createObjectURL(
+        blob
+      );
+
+
+    const audio =
+      new Audio(
+        audioUrl
+      );
+
+
+    currentAudio =
+      audio;
+
+
+    audio.preload =
+      "auto";
+
+
+    audio.volume =
+      1;
+
+
+    audio.onplay =
+      () => {
+
+        aiCore?.classList.add(
+          "speaking"
+        );
+
+        setAIState(
+          "SPEAKING",
+          "GULAB is speaking..."
+        );
+
+      };
+
+
+    audio.onended =
+      () => {
+
+        aiCore?.classList.remove(
+          "speaking"
+        );
+
+        setAIState(
+          "READY",
+          "Ready for your command"
+        );
+
+        URL.revokeObjectURL(
+          audioUrl
+        );
+
+        if (
+          currentAudio === audio
+        ) {
+
+          currentAudio =
+            null;
+
+        }
+
+      };
+
+
+    audio.onerror =
+      (error) => {
+
+        console.error(
+          "Audio playback error:",
+          error
+        );
+
+        aiCore?.classList.remove(
+          "speaking"
+        );
+
+        setAIState(
+          "READY",
+          "Audio playback failed"
+        );
+
+        URL.revokeObjectURL(
+          audioUrl
+        );
+
+        if (
+          currentAudio === audio
+        ) {
+
+          currentAudio =
+            null;
+
+        }
+
+      };
+
+
+    const playPromise =
+      audio.play();
+
+
+    if (
+      playPromise &&
+      typeof playPromise.catch ===
+        "function"
+    ) {
+
+      playPromise.catch(
+        (error) => {
+
+          console.error(
+            "Audio autoplay blocked:",
+            error
+          );
+
+          aiCore?.classList.remove(
+            "speaking"
+          );
+
+          setAIState(
+            "READY",
+            "Tap to play voice"
+          );
+
+          toast(
+            "Voice play blocked. Tap the GULAB core."
+          );
+
+        }
+      );
+
+    }
+
+
+    return true;
+
+  } catch (error) {
+
+    console.error(
+      "ElevenLabs audio processing error:",
+      error
+    );
+
+    return false;
+  }
+}
+
+
+/* =========================================================
+   REAL GEMINI + ELEVENLABS AI
 ========================================================= */
 
 async function askGulab(text) {
@@ -824,21 +1014,9 @@ async function askGulab(text) {
     }
 
 
-    /*
-      Supabase Edge Function URL
-
-      Gemini API key is NOT here.
-      Gemini key stays inside Supabase Secret.
-    */
-
     const functionUrl =
       `${window.GULAB_SUPABASE_URL}/functions/v1/gulab-ai`;
 
-
-    /*
-      Send recent conversation
-      to Gemini for context.
-    */
 
     const history =
       state.history
@@ -946,6 +1124,37 @@ async function askGulab(text) {
     );
 
 
+    /*
+      ElevenLabs audio is returned
+      as Base64 from Supabase.
+    */
+
+    if (
+      data.audioBase64
+    ) {
+
+      playElevenLabsAudio(
+        data.audioBase64,
+        data.audioMimeType ||
+        "audio/mpeg"
+      );
+
+    } else if (
+      data.ttsError
+    ) {
+
+      console.warn(
+        "TTS unavailable:",
+        data.ttsError
+      );
+
+      toast(
+        "AI response आया, लेकिन voice उपलब्ध नहीं है।"
+      );
+
+    }
+
+
     return data.reply;
 
 
@@ -1007,11 +1216,6 @@ if (chatForm) {
       );
 
 
-      /*
-        Local memory command
-        still works instantly.
-      */
-
       const memoryCommand =
         detectMemoryCommand(text);
 
@@ -1040,15 +1244,19 @@ if (chatForm) {
         );
 
 
-        speak(response);
+        /*
+          Memory responses are local,
+          so they don't have ElevenLabs
+          audio from backend.
+        */
+
+        toast(
+          "Memory saved."
+        );
 
         return;
       }
 
-
-      /*
-        Ask real Gemini.
-      */
 
       const response =
         await askGulab(text);
@@ -1064,9 +1272,6 @@ if (chatForm) {
         text,
         response
       );
-
-
-      speak(response);
 
     }
   );
@@ -1121,9 +1326,6 @@ $$("[data-command]")
           command,
           response
         );
-
-
-        speak(response);
 
       }
     );
@@ -1227,9 +1429,6 @@ if (SpeechRecognition) {
         response
       );
 
-
-      speak(response);
-
     };
 
 
@@ -1303,6 +1502,13 @@ function startVoice() {
 
   try {
 
+    /*
+      Stop currently playing voice
+      before starting a new command.
+    */
+
+    stopCurrentAudio();
+
     recognition.start();
 
   } catch (error) {
@@ -1352,96 +1558,21 @@ aiCore?.addEventListener(
 
 
 /* =========================================================
-   TEXT TO SPEECH
+   OLD BROWSER TTS DISABLED
 ========================================================= */
 
 function speak(text) {
 
-  if (
-    !("speechSynthesis" in window)
-  ) {
-    return;
-  }
+  /*
+    Browser speechSynthesis is intentionally
+    disabled.
 
+    GULAB now uses ElevenLabs neural TTS
+    from the Supabase Edge Function.
+  */
 
-  if (!text) {
-    return;
-  }
-
-
-  window.speechSynthesis.cancel();
-
-
-  const cleanText =
-    text
-      .replace(
-        /[🌹🤖🧠🎙️⚡🔐]/g,
-        ""
-      )
-      .trim();
-
-
-  if (!cleanText) {
-    return;
-  }
-
-
-  const utterance =
-    new SpeechSynthesisUtterance(
-      cleanText
-    );
-
-
-  utterance.lang =
-    state.settings.language === "en"
-      ? "en-IN"
-      : "hi-IN";
-
-
-  utterance.rate =
-    0.95;
-
-  utterance.pitch =
-    1.02;
-
-  utterance.volume =
-    1;
-
-
-  utterance.onstart =
-    () => {
-
-      aiCore?.classList.add(
-        "speaking"
-      );
-
-
-      setAIState(
-        "SPEAKING",
-        "GULAB is speaking..."
-      );
-
-    };
-
-
-  utterance.onend =
-    () => {
-
-      aiCore?.classList.remove(
-        "speaking"
-      );
-
-
-      setAIState(
-        "READY",
-        "Ready for your command"
-      );
-
-    };
-
-
-  window.speechSynthesis.speak(
-    utterance
+  console.log(
+    "🌹 GULAB → ElevenLabs TTS handles speech."
   );
 
 }
@@ -1613,6 +1744,8 @@ $("#clearChat")
     "click",
     () => {
 
+      stopCurrentAudio();
+
       clearMessages();
 
       toast(
@@ -1741,16 +1874,10 @@ async function checkBackend() {
 
   try {
 
-    /*
-      We don't send a real AI request here.
-      The actual backend is tested when
-      the user sends a message.
-    */
-
     if (aiEngine) {
 
       aiEngine.textContent =
-        "GEMINI";
+        "GEMINI + ELEVENLABS";
 
     }
 
@@ -1816,7 +1943,7 @@ async function initialize() {
   if (aiEngine) {
 
     aiEngine.textContent =
-      "GEMINI";
+      "GEMINI + ELEVENLABS";
 
   }
 
@@ -1843,7 +1970,7 @@ async function initialize() {
 
 
   console.log(
-    "🌹 GULAB AI V2 initialized."
+    "🌹 GULAB AI V2 + ElevenLabs initialized."
   );
 
 }
